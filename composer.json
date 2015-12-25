@@ -1,0 +1,22 @@
+{
+    "name": "zhibaihe/state",
+    "description": "A finite state machine for PHP.",
+    "type": "library",
+    "require-dev": {
+        "phpunit/phpunit": "^5.1"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "DUAN Zhiyan",
+            "email": "zhiyan@zhibaihe.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Zhibaihe\\State\\": "src/"
+        }
+    }
+}
