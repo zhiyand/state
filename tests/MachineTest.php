@@ -57,6 +57,20 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     }
 
     /** @test */
+    public function it_can_be_set_to_a_specific_state()
+    {
+        $machine = new Machine("states:A, B, C
+            - x: A > B
+            - y: B > C", 'B');
+
+        $this->assertEquals('B', $machine->state());
+
+        $machine->teleport('C');
+
+        $this->assertEquals('C', $machine->state());
+    }
+
+    /** @test */
     public function it_processes_valid_transitions()
     {
         $machine = $this->makeMachine();
@@ -170,7 +184,7 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     {
         $door = new Machine("states: unlocked, locked
             - unlock: locked   > unlocked
-            - lock:   unlocked > locked", new DoorPolicy);
+            - lock:   unlocked > locked", 'unlocked', new DoorPolicy);
 
         // Only values greater than 10 is allowed by policy
         $this->assertFalse($door->lock(1));
@@ -185,7 +199,7 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     {
         $door = new Machine("states: unlocked, locked
             - unlock: locked   > unlocked
-            - lock:   unlocked > locked", new DoorPolicyDenyAll);
+            - lock:   unlocked > locked", 'unlocked', new DoorPolicyDenyAll);
 
         $this->assertTrue($door->lock(110));
 

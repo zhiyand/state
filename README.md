@@ -13,7 +13,7 @@
 Pull `State` in from Composer:
 
 ``` shell
-composer require zhibaihe/state
+composer require zhibaihe/state ^1.1
 ```
 
 ## Usage
@@ -41,7 +41,8 @@ as the initial state.
 states: placed, payed, shipped, completed
 ```
 
-The following lines each describes one possible transition:
+Following the states line, subsequent lines each describes one possible
+transition. E.g.:
 
 ```
 - pay: placed  > payed
@@ -49,6 +50,26 @@ The following lines each describes one possible transition:
 
 The above line defines a transition named `pay` that changes the state of the machine
 from `placed` to `payed`.
+
+You can provide an optional second argument to the constructor to indicate the
+current state of the machine.
+
+``` php
+$order->state = new Machine("...", "payed"); // machine set to 'payed' state
+```
+
+A `teleport()` method is at your disposal if you would like to set the machine
+to a specific state after instantiation.
+
+``` php
+$order->state = new Machine("..."); // machine already instantiated
+...
+$order->teleport("shipped"); // machine set to 'shipped' state
+```
+
+Note that the `teleport()` method does nothing but set the machine state. None
+of the transition listeners will be called since no transition is performed.
+What happened here is a _teleport_! :P
 
 ### Perform transitions
 
@@ -85,7 +106,7 @@ When initializing the machine, you can specify a policy that gives you fine-grai
 control over whether each individual transition should be performed or not.
 
 To create a policy for your machine, simply extend the Zhibaihe\State\Policy class
-and pass an instance of your policy class to the `Machine` constructor as the second
+and pass an instance of your policy class to the `Machine` constructor as the third
 argument.
 
 ``` php
@@ -94,7 +115,7 @@ use Zhibaihe\State\Policy;
 class OrderPolicy extends Policy {
 }
 
-$order->state = new Machine("...", $policy);
+$order->state = new Machine("...", "...", $policy);
 ```
 
 Before each transition, the state machine will consult the policy by invoking a method

@@ -34,11 +34,12 @@ class Machine {
      */
     protected $policy = null;
 
-    public function __construct($configuration = '', Policy $policy = null)
+    public function __construct($configuration = '', $start = '', Policy $policy = null)
     {
         $this->loadFromString($configuration);
 
         $this->state = current($this->states);
+        $this->state = $start ? $this->teleport($start) : $this->state;
         $this->policy = $policy ?: new Policy;
     }
 
@@ -70,6 +71,45 @@ class Machine {
     }
 
     /**
+     * Set the current state to `$state` by force.
+     * No transition listeners are called.
+     *
+     * @param  string $state
+     * @return string current state after teleport
+     */
+    public function teleport($state)
+    {
+        if ( ! $this->ready()) {
+            throw new MachineException("Machine not initialized.");
+        }
+
+        if ( ! $this->has($state)) {
+            throw new MachineException("State '$state' is invalid.");
+        }
+
+        return $this->state = $state;
+    }
+
+    /**
+     * Returns true if the machine is initialized.
+     * @return boolean
+     */
+    public function ready()
+    {
+        return false !== $this->state;
+    }
+
+    /**
+     * Check if the machine has the state `$state`.
+     * @param  string $state
+     * @return boolean
+     */
+    public function has($state)
+    {
+        return in_array($state, $this->states);
+    }
+
+    /**
      * Process a transition.
      * `\Zhibaihe\State\MachineException` is thrown when:
      * 1. the machine is not initialized;
@@ -84,7 +124,7 @@ class Machine {
      */
     public function process($transition, $arguments = [])
     {
-        if (false === $this->state) {
+        if ( ! $this->ready()) {
             throw new MachineException("Machine not initialized.");
         }
 
