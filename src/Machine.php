@@ -164,6 +164,13 @@ class Machine {
         $this->process($name, $arguments);
     }
 
+    /**
+     * Register a transition listener for `$transition`.
+     *
+     * @param  string   $transition
+     * @param  callable $callback
+     * @return void
+     */
     public function on($transition, $callback)
     {
         if ( ! array_key_exists($transition, $this->listeners)) {
@@ -175,6 +182,13 @@ class Machine {
         }
     }
 
+    /**
+     * Remove a transition listener for `$transition`.
+     *
+     * @param  string   $transition
+     * @param  callable $callback
+     * @return void
+     */
     public function off($transition, $callback)
     {
         if ( ! array_key_exists($transition, $this->listeners)) {
