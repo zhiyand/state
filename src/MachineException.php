@@ -4,6 +4,6 @@ namespace Zhibaihe\State;
 
 use Exception;
 
-class StateException extends Exception {
+class MachineException extends Exception {
 
 }

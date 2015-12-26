@@ -9,7 +9,12 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     /** @test */
     public function it_can_be_initialized()
     {
-        $this->assertInstanceOf(Machine::class, new Machine);
+        $machine = new Machine;
+
+        $this->assertInstanceOf(Machine::class, $machine);
+
+        $this->assertEquals([], $machine->states());
+        $this->assertEquals([], $machine->transitions());
     }
 
     /** @test */
@@ -46,6 +51,69 @@ class MachineTest extends PHPUnit_Framework_TestCase {
 
         $machine->archive();
         $this->assertEquals('archived', $machine->state());
+    }
+
+    /**
+     * @test
+     * @expectedException \Zhibaihe\State\MachineException
+     */
+    public function it_complains_about_invalid_transitions()
+    {
+        $machine = $this->makeMachine();
+
+        $machine->publish();
+    }
+
+    /** @test */
+    public function it_allows_manual_configuration_through_machine_methods()
+    {
+        $machine = new Machine;
+
+        /*
+        states: A, B, C
+        - ab: A > B
+        - bc: B > C
+        - ac: A > C
+
+        A -> B
+          \  |
+             C
+         */
+
+        $machine->addState('A');
+        $machine->addState('B');
+        $machine->addState('C');
+
+        $machine->addTransition('ab', 'A', 'B');
+        $machine->addTransition('ac', 'A', 'C');
+        $machine->addTransition('bc', 'B', 'C');
+
+        $this->assertEquals(['A', 'B', 'C'], $machine->states());
+        $this->assertEquals([
+            'A' => ['ab' => 'B', 'ac' => 'C'],
+            'B' => ['bc' => 'C']
+        ], $machine->transitions());
+    }
+
+    /** @test */
+    public function it_adds_states_automatically_when_adding_transitions()
+    {
+        $machine = new Machine;
+
+        $machine->addTransition('ab', 'A', 'B');
+
+        $this->assertEquals(['A', 'B'], $machine->states());
+    }
+
+    /**
+     * @test
+     * @expectedException \Zhibaihe\State\MachineException
+     */
+    public function it_complains_when_an_uninitialized_machine_is_used()
+    {
+        $machine = new Machine;
+
+        $machine->process('dummy');
     }
 
     protected function makeMachine()
