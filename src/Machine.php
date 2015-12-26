@@ -28,11 +28,18 @@ class Machine {
      */
     protected $listeners = [];
 
-    public function __construct($string = '')
+    /**
+     * The policy governing this machine.
+     * @var Policy
+     */
+    protected $policy = null;
+
+    public function __construct($configuration = '', Policy $policy = null)
     {
-        $this->loadFromString($string);
+        $this->loadFromString($configuration);
 
         $this->state = current($this->states);
+        $this->policy = $policy ?: new Policy;
     }
 
     /**
@@ -68,7 +75,7 @@ class Machine {
      * 1. the machine is not initialized;
      * 2. no transition is defined at current state;
      * 3. the transition is illegal at current state.
-     * 
+     *
      * @param  string $transition  The transition to be processed
      * @param  array  $arguments   The arguments for the transition
      * @return void
@@ -93,9 +100,15 @@ class Machine {
 
         $to = $transitions[$transition];
 
+        if ($this->policy->denies($transition, $this->state, $to, $arguments)) {
+            return false;
+        }
+
         $this->triggerListeners($transition, $this->state, $to, $arguments);
 
         $this->state = $to;
+
+        return true;
     }
 
     /**
@@ -136,13 +149,13 @@ class Machine {
         if ( ! array_key_exists($from, $this->transitions)) {
             $this->transitions[$from] = [];
         }
-        
+
         $this->transitions[$from][$transition] = $to;
     }
 
     /**
      * Check if the machine has a given state
-     * 
+     *
      * @param  string  $label State label to be checked.
      * @return boolean        true if the machine has the given state, false otherwise.
      */
@@ -154,14 +167,14 @@ class Machine {
     /**
      * Dynamically invoke the `process()` method to process a transition.
      * Allows more friendly transition API.
-     * 
+     *
      * @param  string $name      The transition name
      * @param  array  $arguments The arguments to the transition
      * @return [type]            [description]
      */
     public function __call($name, $arguments)
     {
-        $this->process($name, $arguments);
+        return $this->process($name, $arguments);
     }
 
     /**
@@ -211,14 +224,14 @@ class Machine {
         }
 
         foreach ($this->listeners[$transition] as $listener) {
-            call_user_func_array($listener, [$from, $to, $parameters]);
+            call_user_func_array($listener, array_merge([$from, $to], $parameters));
         }
-        
+
     }
 
     /**
      * Load machine configuration from string.
-     * 
+     *
      * @param  string $string The configuration string
      * @return void
      */

@@ -1,6 +1,14 @@
 <?php
 
 use Zhibaihe\State\Machine;
+use Zhibaihe\State\Policy;
+
+class DoorPolicy extends Policy {
+    public function lock($from, $to, $time)
+    {
+        return $time > 10;
+    }
+}
 
 class MachineTest extends PHPUnit_Framework_TestCase {
 
@@ -124,11 +132,11 @@ class MachineTest extends PHPUnit_Framework_TestCase {
         $callback = $this->getMock('stdClass', array('handle'));
         $callback->expects($this->once())
             ->method('handle')
-            ->with('draft', 'pending', ['zhiyan']);
+            ->with('draft', 'pending', 'zhiyan', 'admin');
 
         $machine->on('pend', [$callback, 'handle']);
 
-        $machine->pend('zhiyan');
+        $machine->pend('zhiyan', 'admin');
     }
 
     /** @test */
@@ -145,6 +153,21 @@ class MachineTest extends PHPUnit_Framework_TestCase {
         $machine->off('pend', [$callback, 'handle']);
 
         $machine->pend();
+    }
+
+    /** @test */
+    public function it_follows_a_given_policy()
+    {
+        $door = new Machine("states: unlocked, locked
+            - unlock: locked   > unlocked
+            - lock:   unlocked > locked", new DoorPolicy);
+
+        // Only values greater than 10 is allowed by policy
+        $this->assertFalse($door->lock(1));
+        $this->assertTrue($door->lock(11));
+
+        // No policy on 'unlock', anything would work.
+        $this->assertTrue($door->unlock(0));
     }
 
     protected function makeMachine()
