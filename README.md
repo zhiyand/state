@@ -99,9 +99,11 @@ As an example:
 
 ``` php
 class OrderPolicy extends Policy {
+
     public function pay($gateway){
         return 'stripe' == $gateway;
     }
+
 }
 ...
 // This transition will be denied,
@@ -113,8 +115,22 @@ $order->state->pay('paypal');
 $order->state->pay('stripe');
 ```
 
-If no policy is specified upon machine instantiation, a default policy allows all
-transitions will be used.
+Transitions not specified in the policy are allowed by default.
+If you prefer a safer policy scheme, override the `$denial` property on
+your policy class to `true`. That way, unspecified transitions are denied
+by default unless you explicitly allow them in your policy.
+
+``` php
+class OrderPolicy extends Policy {
+
+    protected $denial = true;
+
+    /* your other code */
+}
+```
+
+If no policy is specified upon machine instantiation, a policy allows
+all transitions will be used by default.
 
 ### Monitor transitions
 

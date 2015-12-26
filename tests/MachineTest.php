@@ -10,6 +10,16 @@ class DoorPolicy extends Policy {
     }
 }
 
+class DoorPolicyDenyAll extends Policy {
+
+    protected $denial = true;
+
+    public function lock($from, $to, $time)
+    {
+        return $time > 10;
+    }
+}
+
 class MachineTest extends PHPUnit_Framework_TestCase {
 
     protected $machine;
@@ -156,7 +166,7 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     }
 
     /** @test */
-    public function it_follows_a_given_policy()
+    public function it_follows_a_given_allow_all_policy()
     {
         $door = new Machine("states: unlocked, locked
             - unlock: locked   > unlocked
@@ -168,6 +178,19 @@ class MachineTest extends PHPUnit_Framework_TestCase {
 
         // No policy on 'unlock', anything would work.
         $this->assertTrue($door->unlock(0));
+    }
+
+    /** @test */
+    public function it_follows_a_given_denial_policy()
+    {
+        $door = new Machine("states: unlocked, locked
+            - unlock: locked   > unlocked
+            - lock:   unlocked > locked", new DoorPolicyDenyAll);
+
+        $this->assertTrue($door->lock(110));
+
+        // No policy on 'unlock', gets denied
+        $this->assertFalse($door->unlock(0));
     }
 
     protected function makeMachine()
