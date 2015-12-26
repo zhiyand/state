@@ -14,9 +14,9 @@ composer require zhibaihe/state
 
 ## Usage
 
-**Create a state machine**
+### Create a state machine
 
-Creating a state machine with `State` is a cinch. Just pass a `machine spec`, which 
+Creating a state machine with `State` is a cinch. Just pass a `machine spec`, which
 is a specially formatted string description, to the machine into the constructor,
 like the following:
 
@@ -46,7 +46,7 @@ The following lines each describes one possible transition:
 The above line defines a transition named `pay` that changes the state of the machine
 from `placed` to `payed`.
 
-**Perform transitions**
+### Perform transitions
 
 To perform a transition on a state machine, simply call a function with the name of the
 transition you specified in the `machine spec`. For example:
@@ -75,7 +75,48 @@ $order->state->process('pay');
 $order->state->process('pay', $gateway, $reference, $notes);
 ```
 
-**Monitor transitions**
+### Control transitions using a policy
+
+When initializing the machine, you can specify a policy that gives you fine-grained
+control over whether each individual transition should be performed or not.
+
+To create a policy for your machine, simply extend the Zhibaihe\State\Policy class
+and pass an instance of your policy class to the `Machine` constructor as the second
+argument.
+
+``` php
+use Zhibaihe\State\Policy;
+
+class OrderPolicy extends Policy {
+}
+
+$order->state = new Machine("...", $policy);
+```
+
+Before each transition, the state machine will consult the policy by invoking a method
+named after the transition. It then proceeds only if that method call returns true.
+As an example:
+
+``` php
+class OrderPolicy extends Policy {
+    public function pay($gateway){
+        return 'stripe' == $gateway;
+    }
+}
+...
+// This transition will be denied,
+// machine state stays unchanged.
+$order->state->pay('paypal');
+
+// This transition will be allowed,
+// machine state changed to 'payed'.
+$order->state->pay('stripe');
+```
+
+If no policy is specified upon machine instantiation, a default policy allows all
+transitions will be used.
+
+### Monitor transitions
 
 State machines are no good if you cannot monitor their state to do something about it.
 With `State`, you can register transition listeners quite easily. Just attach a
@@ -90,9 +131,10 @@ This will trigger the `addPayment()` method on `$order` whenever the `pay` trans
 performed. The listener should have the following signature:
 
 ``` php
-function transitionListener($from, $to, $parameters);
+function transitionListener($from, $to, $arg1, $arg2, $arg3 ...);
 ```
 
 The first argument is machine state before the transition; the second argument
-is the machine state after the transition; and the third argument is an array of all
-transition parameters (specified when you call the `process()` method or dynamic methods).
+is the machine state after the transition; and the other arguments are those
+transition parameters you specified when calling the `process()` method.
+
