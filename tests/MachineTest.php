@@ -25,9 +25,9 @@ class MachineTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(['draft', 'pending', 'published', 'archived'], $states);
         $this->assertEquals([
-            'pend' => ['draft', 'pending'],
-            'publish' => ['pending', 'published'],
-            'archive' => ['published', 'archived'],
+            'draft' => ['pend' => 'pending'],
+            'pending' => ['publish' => 'published'],
+            'published' => ['archive' => 'archived'],
         ], $transitions);
 
         $this->assertEquals('draft', $machine->state());
@@ -37,6 +37,15 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     public function it_processes_valid_transitions()
     {
         $machine = $this->makeMachine();
+
+        $machine->pend();
+        $this->assertEquals('pending', $machine->state());
+
+        $machine->publish();
+        $this->assertEquals('published', $machine->state());
+
+        $machine->archive();
+        $this->assertEquals('archived', $machine->state());
     }
 
     protected function makeMachine()

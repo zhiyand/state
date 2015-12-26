@@ -30,15 +30,30 @@ class Machine {
         return $this->transitions;
     }
 
+    public function process($transition)
+    {
+        $transitions = $this->transitions[$this->state];
+
+        if ( ! array_key_exists($transition, $transitions)) {
+            throw new StateException("Transition '$name' at state '{$this->state}' is invalid.");
+        }
+
+        $this->state = $transitions[$transition];
+    }
+
+    public function __call($name, $arguments)
+    {
+        $this->process($name);
+    }
+
     protected function loadFromString($string)
     {
-
-/*
-states: draft, pending, published, archived
-- pend: draft > pending
-- publish: pending > published
-- archive: published > archived
-*/
+        /*
+        states: draft, pending, published, archived
+        - pend: draft > pending
+        - publish: pending > published
+        - archive: published > archived
+        */
         $string = str_replace("\r\n", "\n", $string);
         $string = str_replace("\r", "\n", $string);
 
@@ -50,7 +65,14 @@ states: draft, pending, published, archived
 
         foreach ($lines as $line) {
             list($transition, $ends) = explode(':', trim($line, " -"));
-            $this->transitions[$transition] = array_map('trim', explode('>', $ends));
+            list($from, $to) = array_map('trim', explode('>', $ends));
+
+
+            if ( ! array_key_exists($from, $this->transitions)) {
+                $this->transitions[$from] = [];
+            }
+
+            $this->transitions[$from][$transition] = $to;
         }
 
     }
