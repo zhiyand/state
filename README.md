@@ -37,7 +37,7 @@ as the initial state.
 states: placed, payed, shipped, completed
 ```
 
-followed by lines each describing one possible transaction:
+The following lines each describes one possible transition:
 
 ```
 - pay: placed  > payed
@@ -48,14 +48,15 @@ from `placed` to `payed`.
 
 **Perform transitions**
 
-To perform a transition on a state machine, simply call a function with name of the
-transition. For example:
+To perform a transition on a state machine, simply call a function with the name of the
+transition you specified in the `machine spec`. For example:
 
 ``` php
 $order->state->pay();
 ```
 
-This will perform the `pay` transition on the state machine we created just now.
+This will perform the `pay` transition and bring the state of the machine from `placed`
+to `payed`.
 
 Parameters can be passed as well:
 
@@ -69,7 +70,29 @@ name.
 ``` php
 $order->state->process('pay');
 
-// or
+// or with parameters
 
 $order->state->process('pay', $gateway, $reference, $notes);
 ```
+
+**Monitor transitions**
+
+State machines are no good if you cannot monitor their state to do something about it.
+With `State`, you can register transition listeners quite easily. Just attach a
+[callable](http://php.net/manual/en/language.types.callable.php)to the transition
+you want to monitor:
+
+``` php
+$order->state->on('pay', [$order, 'addPayment']);
+```
+
+This will trigger the `addPayment()` method on `$order` whenever the `pay` transition is
+performed. The listener should have the following signature:
+
+``` php
+function transitionListener($from, $to, $parameters);
+```
+
+The first argument is machine state before the transition; the second argument
+is the machine state after the transition; and the third argument is an array of all
+transition parameters (specified when you call the `process()` method or dynamic methods).

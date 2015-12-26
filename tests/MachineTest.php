@@ -116,6 +116,21 @@ class MachineTest extends PHPUnit_Framework_TestCase {
         $machine->process('dummy');
     }
 
+    /** @test */
+    public function it_triggers_transition_listeners()
+    {
+        $machine = $this->makeMachine();
+
+        $callback = $this->getMock('stdClass', array('handle'));
+        $callback->expects($this->once())
+            ->method('handle')
+            ->with('draft', 'pending', ['zhiyan']);
+
+        $machine->on('pend', [$callback, 'handle']);
+
+        $machine->pend('zhiyan');
+    }
+
     protected function makeMachine()
     {
         return new Machine("states: draft, pending, published, archived

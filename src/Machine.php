@@ -4,11 +4,29 @@ namespace Zhibaihe\State;
 
 class Machine {
 
+    /**
+     * Current state of the machine.
+     * @var boolean
+     */
     protected $state = false;
 
+    /**
+     * All possible states of the machine.
+     * @var array
+     */
     protected $states = [];
 
+    /**
+     * All transitions of the machine.
+     * @var array
+     */
     protected $transitions = [];
+
+    /**
+     * Transition listeners.
+     * @var array
+     */
+    protected $listeners = [];
 
     public function __construct($string = '')
     {
@@ -73,7 +91,11 @@ class Machine {
             throw new MachineException("Transition '$transition' at state '{$this->state}' is invalid.");
         }
 
-        $this->state = $transitions[$transition];
+        $to = $transitions[$transition];
+
+        $this->triggerListeners($transition, $this->state, $to, $arguments);
+
+        $this->state = $to;
     }
 
     /**
@@ -140,6 +162,44 @@ class Machine {
     public function __call($name, $arguments)
     {
         $this->process($name, $arguments);
+    }
+
+    public function on($transition, $callback)
+    {
+        if ( ! array_key_exists($transition, $this->listeners)) {
+            $this->listeners[$transition] = [];
+        }
+
+        if ( ! in_array($callback, $this->listeners[$transition])) {
+            $this->listeners[$transition][] = $callback;
+        }
+    }
+
+    public function off($transition, $callback)
+    {
+        if ( ! array_key_exists($transition, $this->listeners)) {
+            return;
+        }
+
+        if ( ! in_array($callback, $this->listeners[$transition])) {
+            return;
+        }
+
+        $this->listeners[$transition] = array_filter($this->listeners[$transition], function($item) use ($callback){
+            return $callback != $item;
+        });
+    }
+
+    protected function triggerListeners($transition, $from, $to, $parameters)
+    {
+        if ( ! array_key_exists($transition, $this->listeners) || 0 == count($this->listeners[$transition])) {
+            return;
+        }
+
+        foreach ($this->listeners[$transition] as $listener) {
+            call_user_func_array($listener, [$from, $to, $parameters]);
+        }
+        
     }
 
     /**
