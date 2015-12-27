@@ -13,7 +13,7 @@
 Pull `State` in from Composer:
 
 ``` shell
-composer require zhibaihe/state ^1.1
+composer require zhibaihe/state ^1.2
 ```
 
 ## Usage
