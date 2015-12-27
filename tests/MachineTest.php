@@ -233,6 +233,42 @@ class MachineTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($door->unlock(0));
     }
 
+    /** @test */
+    public function it_supports_walkers_for_simplified_transition_monitoring()
+    {
+        $machine = $this->makeMachine();
+
+        $walker = $this->getMock('stdClass', array('pend', 'publish', 'archive'));
+
+        $walker->expects($this->once())
+            ->method('pend')
+            ->with('draft', 'pending', 'John');
+        $walker->expects($this->exactly(1))
+            ->method('publish')
+            ->with('pending', 'published', 'Jenny');
+        $walker->expects($this->exactly(1))
+            ->method('archive')
+            ->with('published', 'archived', 'Alice');
+
+        $machine->attach($walker);
+
+        $machine->pend('John');
+        $machine->publish('Jenny');
+        $machine->archive('Alice');
+
+        $machine->detach($walker);
+
+        $genericWalker = $this->getMock('stdClass', array('process'));
+        $genericWalker->expects($this->exactly(1))
+            ->method('process')->with('pend', 'draft', 'pending', ['John']);
+
+        $machine->attach($genericWalker);
+
+        $machine->teleport('draft');
+
+        $machine->pend('John');
+    }
+
     protected function makeMachine()
     {
         return new Machine("states: draft, pending, published, archived

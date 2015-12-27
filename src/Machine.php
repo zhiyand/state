@@ -34,7 +34,17 @@ class Machine {
      */
     protected $policy = null;
 
+    /**
+     * Key of global listeners in the listeners array.
+     * @var string
+     */
     protected $globalListenerKey = '__ALL__';
+
+    /**
+     * State machine walkers
+     * @var array
+     */
+    protected $walkers = [];
 
     public function __construct($configuration = '', $start = '', Policy $policy = null)
     {
@@ -145,6 +155,8 @@ class Machine {
         if ($this->policy->denies($transition, $this->state, $to, $arguments)) {
             return false;
         }
+
+        $this->triggerWalkers($transition, $this->state, $to, $arguments);
 
         $this->triggerListeners($transition, $this->state, $to, $arguments);
 
@@ -267,6 +279,43 @@ class Machine {
         $this->listeners[$transition] = array_filter($this->listeners[$transition], function($item) use ($callback){
             return $callback != $item;
         });
+    }
+
+    /**
+     * Attach a walker
+     * @param  object $walker A walker object
+     * @return void
+     */
+    public function attach($walker)
+    {
+        if ( ! in_array($walker, $this->walkers)) {
+            $this->walkers[] = $walker;
+        }
+    }
+
+    /**
+     * Detach a walker
+     * @param  object $walker A walker object
+     * @return void
+     */
+    public function detach($walker)
+    {
+        if (in_array($walker, $this->walkers)) {
+            $this->walkers = array_filter($this->walkers, function($item) use ($walker) {
+                return $item != $walker;
+            });
+        }
+    }
+
+    protected function triggerWalkers($transition, $from, $to, $parameters)
+    {
+        foreach ($this->walkers as $walker) {
+            if(method_exists($walker, $transition)){
+                call_user_func_array([$walker, $transition], array_merge([$from, $to], $parameters));
+            }else{
+                call_user_func_array([$walker, 'process'], [$transition, $from, $to, $parameters]);
+            }
+        }
     }
 
     protected function triggerListeners($transition, $from, $to, $parameters)
