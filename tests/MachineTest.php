@@ -171,12 +171,38 @@ class MachineTest extends PHPUnit_Framework_TestCase {
         $callback = $this->getMock('stdClass', array('handle'));
         $callback->expects($this->exactly(0))
             ->method('handle')
-            ->with('draft', 'pending', ['zhiyan']);
+            ->with('draft', 'pending');
 
         $machine->on('pend', [$callback, 'handle']);
         $machine->off('pend', [$callback, 'handle']);
 
         $machine->pend();
+    }
+
+    /** @test */
+    public function it_triggers_global_listeners_properly()
+    {
+        $machine = $this->makeMachine();
+
+        $callback = $this->getMock('stdClass', array('handle'));
+        $callback->expects($this->exactly(2))
+            ->method('handle');
+
+        $machine->on([$callback, 'handle']);
+
+        $machine->pend();
+        $machine->publish();
+
+        $machine->off([$callback, 'handle']);
+
+        $callback = $this->getMock('stdClass', array('handle'));
+        $callback->expects($this->exactly(1))
+            ->method('handle')
+            ->with('archive', 'published', 'archived', 'zhiyan');
+
+        $machine->on([$callback, 'handle']);
+
+        $machine->archive('zhiyan');
     }
 
     /** @test */

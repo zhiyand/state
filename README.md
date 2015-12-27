@@ -67,7 +67,7 @@ $order->state = new Machine("..."); // machine already instantiated
 $order->teleport("shipped"); // machine set to 'shipped' state
 ```
 
-Note that the `teleport()` method does nothing but set the machine state. None
+Note that the `teleport()` method does nothing but setting the machine state. None
 of the transition listeners will be called since no transition is performed.
 What happened here is a _teleport_! :P
 
@@ -161,7 +161,7 @@ all transitions will be used by default.
 
 State machines are no good if you cannot monitor their state to do something about it.
 With `State`, you can register transition listeners quite easily. Just attach a
-[callable](http://php.net/manual/en/language.types.callable.php)to the transition
+[callable](http://php.net/manual/en/language.types.callable.php) to the transition
 you want to monitor:
 
 ``` php
@@ -175,7 +175,26 @@ performed. The listener should have the following signature:
 function transitionListener($from, $to, $arg1, $arg2, $arg3 ...);
 ```
 
-The first argument is machine state before the transition; the second argument
-is the machine state after the transition; and the other arguments are those
-transition parameters you specified when calling the `process()` method.
+It accepts a `$from` state, a `$to` state and all
+transition parameters you specified when calling the `process()` method or
+transition methods.
+
+Sometimes you may want to monitor all transitions of a given state machine. This
+is especially useful for logging purposes (e.g. keeping a state transition log
+for orders of your e-commerce system). In this case, you can register a
+`global listener` by omitting the `$transition` parameter to the `on()` call:
+
+``` php
+$order->state->on([$order, 'logging']);
+```
+
+The `logging()` method of `$order` will be called when any state transition happens
+within the machine. It's signature is the same as a transition-specific listener
+except that it accepts the transition name as the first argument:
+
+``` php
+function logging($transition, $from, $to, $arg1, $arg2, ...)
+```
+
+
 

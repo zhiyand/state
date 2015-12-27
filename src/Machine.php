@@ -34,6 +34,8 @@ class Machine {
      */
     protected $policy = null;
 
+    protected $globalListenerKey = '__ALL__';
+
     public function __construct($configuration = '', $start = '', Policy $policy = null)
     {
         $this->loadFromString($configuration);
@@ -224,8 +226,13 @@ class Machine {
      * @param  callable $callback
      * @return void
      */
-    public function on($transition, $callback)
+    public function on($transition, $callback = null)
     {
+        if (is_callable($transition)) {
+            $callback = $transition;
+            $transition = $this->globalListenerKey;
+        }
+
         if ( ! array_key_exists($transition, $this->listeners)) {
             $this->listeners[$transition] = [];
         }
@@ -242,8 +249,13 @@ class Machine {
      * @param  callable $callback
      * @return void
      */
-    public function off($transition, $callback)
+    public function off($transition, $callback = null)
     {
+        if (is_callable($transition)) {
+            $callback = $transition;
+            $transition = $this->globalListenerKey;
+        }
+
         if ( ! array_key_exists($transition, $this->listeners)) {
             return;
         }
@@ -259,14 +271,19 @@ class Machine {
 
     protected function triggerListeners($transition, $from, $to, $parameters)
     {
-        if ( ! array_key_exists($transition, $this->listeners) || 0 == count($this->listeners[$transition])) {
-            return;
+        // Call global listeners if available.
+        if (array_key_exists($this->globalListenerKey, $this->listeners)) {
+            foreach ($this->listeners[$this->globalListenerKey] as $listener) {
+                call_user_func_array($listener, array_merge([$transition, $from, $to], $parameters));
+            }
         }
 
-        foreach ($this->listeners[$transition] as $listener) {
-            call_user_func_array($listener, array_merge([$from, $to], $parameters));
+        // Call transition-specific listeners if available.
+        if (array_key_exists($transition, $this->listeners)) {
+            foreach ($this->listeners[$transition] as $listener) {
+                call_user_func_array($listener, array_merge([$from, $to], $parameters));
+            }
         }
-
     }
 
     /**
