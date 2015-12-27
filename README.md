@@ -13,7 +13,7 @@
 Pull `State` in from Composer:
 
 ``` shell
-composer require zhibaihe/state ^1.2
+composer require zhibaihe/state ^1.3
 ```
 
 ## Usage
@@ -185,8 +185,8 @@ The `_catchall_()` method follows the same signature of global listeners.
 
 ### Control transitions using a policy
 
-When initializing the machine, you can specify a policy that gives you fine-grained
-control over whether each individual transition should be performed or not.
+Sometimes you may want to do some checking before a transition and allow or deny
+that transition conditionally. You can do exactly this with `State` using poilcies.
 
 To create a policy for your machine, simply extend the Zhibaihe\State\Policy class
 and pass an instance of your policy class to the `Machine` constructor as the third
