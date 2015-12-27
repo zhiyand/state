@@ -100,6 +100,89 @@ $order->state->process('pay');
 $order->state->process('pay', $gateway, $reference, $notes);
 ```
 
+### Monitor transitions
+
+State machines are no good if you cannot monitor their state to do something about it.
+With `State`, you can register transition listeners quite easily. Just attach a
+[callable](http://php.net/manual/en/language.types.callable.php) to the transition
+you want to monitor:
+
+``` php
+$order->state->on('pay', [$order, 'addPayment']);
+```
+
+This will trigger the `addPayment()` method on `$order` whenever the `pay` transition is
+performed. The listener should have the following signature:
+
+``` php
+function transitionListener($from, $to, $arg1, $arg2, $arg3 ...);
+```
+
+It accepts a `$from` state, a `$to` state and all
+transition parameters you specified when calling the `process()` method or
+transition methods.
+
+Sometimes you may want to monitor all transitions of a given state machine. This
+is especially useful for logging purposes (e.g. keeping a state transition log
+for orders of your e-commerce system). In this case, you can register a
+`global listener` by omitting the `$transition` parameter to the `on()` call:
+
+``` php
+$order->state->on([$order, 'logging']);
+```
+
+The `logging()` method of `$order` will be called when any state transition happens
+within the machine. It accepts the `$transition` name, a `$from` state, a `$to`
+state, and an array of transition parameters.
+
+``` php
+function logging($transition, $from, $to, $parameters)
+```
+
+### Machine Walkers
+
+Instead of registering transition listeners for each individual transition separately,
+you can provide an object as the machine `walker`, which walks along the edges between
+states. When a transition is performed, the method named after that transition on the
+`walker` object will be triggered, just like a transition listener.
+
+``` php
+class OrderWalker {
+    public function pay($from, $to, $gateway) {
+        // do something here.
+    }
+}
+
+$order->state->attach(new OrderWalker); // attach the walker
+
+$order->state->pay('stripe'); // OrderWalker::pay() gets called
+```
+
+The `attach()` method is used to associate a `walker` with the state machine.
+You can define an optional `_catchall_()` method on your `walker` object to
+monitor those transitions you didn't explicitly catch through a method.
+
+``` php
+class OrderWalker {
+    public function pay($from, $to, $gateway) {
+        // do something here.
+    }
+
+    public function _catchall_($transition, $from, $to, array $parameters) {
+        // transitions without a corresponding method will
+        // get passed to this one
+    }
+}
+
+$order->state->attach(new OrderWalker); // attach the walker
+
+$order->state->pay('stripe'); // OrderWalker::pay() gets called
+
+$order->state->ship(); // OrderWalker::_catchall_() gets called
+```
+
+The `_catchall_()` method follows the same signature of global listeners.
+
 ### Control transitions using a policy
 
 When initializing the machine, you can specify a policy that gives you fine-grained
@@ -156,45 +239,3 @@ class OrderPolicy extends Policy {
 
 If no policy is specified upon machine instantiation, a policy allows
 all transitions will be used by default.
-
-### Monitor transitions
-
-State machines are no good if you cannot monitor their state to do something about it.
-With `State`, you can register transition listeners quite easily. Just attach a
-[callable](http://php.net/manual/en/language.types.callable.php) to the transition
-you want to monitor:
-
-``` php
-$order->state->on('pay', [$order, 'addPayment']);
-```
-
-This will trigger the `addPayment()` method on `$order` whenever the `pay` transition is
-performed. The listener should have the following signature:
-
-``` php
-function transitionListener($from, $to, $arg1, $arg2, $arg3 ...);
-```
-
-It accepts a `$from` state, a `$to` state and all
-transition parameters you specified when calling the `process()` method or
-transition methods.
-
-Sometimes you may want to monitor all transitions of a given state machine. This
-is especially useful for logging purposes (e.g. keeping a state transition log
-for orders of your e-commerce system). In this case, you can register a
-`global listener` by omitting the `$transition` parameter to the `on()` call:
-
-``` php
-$order->state->on([$order, 'logging']);
-```
-
-The `logging()` method of `$order` will be called when any state transition happens
-within the machine. It's signature is the same as a transition-specific listener
-except that it accepts the transition name as the first argument:
-
-``` php
-function logging($transition, $from, $to, $arg1, $arg2, ...)
-```
-
-
-

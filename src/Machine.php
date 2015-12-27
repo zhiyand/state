@@ -310,10 +310,10 @@ class Machine {
     protected function triggerWalkers($transition, $from, $to, $parameters)
     {
         foreach ($this->walkers as $walker) {
-            if(method_exists($walker, $transition)){
+            if (method_exists($walker, $transition)) {
                 call_user_func_array([$walker, $transition], array_merge([$from, $to], $parameters));
-            }else{
-                call_user_func_array([$walker, 'process'], [$transition, $from, $to, $parameters]);
+            }elseif (method_exists($walker, '_catchall_')) {
+                call_user_func_array([$walker, '_catchall_'], [$transition, $from, $to, $parameters]);
             }
         }
     }
@@ -323,7 +323,7 @@ class Machine {
         // Call global listeners if available.
         if (array_key_exists($this->globalListenerKey, $this->listeners)) {
             foreach ($this->listeners[$this->globalListenerKey] as $listener) {
-                call_user_func_array($listener, array_merge([$transition, $from, $to], $parameters));
+                call_user_func_array($listener, [$transition, $from, $to, $parameters]);
             }
         }
 

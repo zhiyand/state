@@ -198,7 +198,7 @@ class MachineTest extends PHPUnit_Framework_TestCase {
         $callback = $this->getMock('stdClass', array('handle'));
         $callback->expects($this->exactly(1))
             ->method('handle')
-            ->with('archive', 'published', 'archived', 'zhiyan');
+            ->with('archive', 'published', 'archived', ['zhiyan']);
 
         $machine->on([$callback, 'handle']);
 
@@ -258,9 +258,9 @@ class MachineTest extends PHPUnit_Framework_TestCase {
 
         $machine->detach($walker);
 
-        $genericWalker = $this->getMock('stdClass', array('process'));
+        $genericWalker = $this->getMock('stdClass', array('_catchall_'));
         $genericWalker->expects($this->exactly(1))
-            ->method('process')->with('pend', 'draft', 'pending', ['John']);
+            ->method('_catchall_')->with('pend', 'draft', 'pending', ['John']);
 
         $machine->attach($genericWalker);
 
