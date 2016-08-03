@@ -55,6 +55,13 @@ class Machine {
         $this->policy = $policy ?: new Policy;
     }
 
+    public static function fromFile($path, $start = '', Policy $policy = null)
+    {
+        $configuration = file_get_contents($path);
+
+        return new self($configuration, $start, $policy);
+    }
+
     /**
      * Get current state of the machine.
      * @return string The current state

@@ -57,6 +57,28 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     }
 
     /** @test */
+    public function it_loads_machine_configuration_from_file()
+    {
+        $machine = Machine::fromFile(__DIR__ . '/../fixtures/article.spec');
+
+        $states = $machine->states();
+        $transitions = $machine->transitions();
+
+        $this->assertCount(4, $states);
+        $this->assertCount(3, $transitions);
+
+        $this->assertEquals(['draft', 'pending', 'published', 'archived'], $states);
+        $this->assertEquals([
+            'draft' => ['pend' => 'pending'],
+            'pending' => ['publish' => 'published'],
+            'published' => ['archive' => 'archived'],
+        ], $transitions);
+
+        $this->assertEquals('draft', $machine->state());
+    }
+
+
+    /** @test */
     public function it_can_be_set_to_a_specific_state()
     {
         $machine = new Machine("states:A, B, C
