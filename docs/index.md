@@ -3,11 +3,11 @@ layout: page
 title: State - State machines made simple.
 ---
 
-[![Build Status](https://travis-ci.org/zhibaihe/state.svg?branch=master)](https://travis-ci.org/zhibaihe/state)
-[![Total Downloads](https://poser.pugx.org/zhibaihe/state/downloads)](https://packagist.org/packages/zhibaihe/state)
-[![Latest Stable Version](https://poser.pugx.org/zhibaihe/state/v/stable)](https://packagist.org/packages/zhibaihe/state)
-[![Latest Unstable Version](https://poser.pugx.org/zhibaihe/state/v/unstable)](https://packagist.org/packages/zhibaihe/state)
-[![License](https://poser.pugx.org/zhibaihe/state/license)](https://packagist.org/packages/zhibaihe/state)
+[![Build Status](https://travis-ci.org/offbeatengineer/state.svg?branch=master)](https://travis-ci.org/offbeatengineer/state)
+[![Total Downloads](https://poser.pugx.org/offbeatengineer/state/downloads)](https://packagist.org/packages/offbeatengineer/state)
+[![Latest Stable Version](https://poser.pugx.org/offbeatengineer/state/v/stable)](https://packagist.org/packages/offbeatengineer/state)
+[![Latest Unstable Version](https://poser.pugx.org/offbeatengineer/state/v/unstable)](https://packagist.org/packages/offbeatengineer/state)
+[![License](https://poser.pugx.org/offbeatengineer/state/license)](https://packagist.org/packages/offbeatengineer/state)
 
 `State` is a state machine implementation in PHP.
 
@@ -16,7 +16,7 @@ title: State - State machines made simple.
 Pull `State` in from Composer:
 
 {% highlight php %}
-composer require zhibaihe/state ^1.3
+composer require offbeatengineer/state ^1.3
 {% endhighlight %}
 
 ## Create a state machine
