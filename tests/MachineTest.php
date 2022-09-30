@@ -2,6 +2,8 @@
 
 use OffbeatEngineer\State\Machine;
 use OffbeatEngineer\State\Policy;
+use PHPUnit\Framework\TestCase;
+
 
 class DoorPolicy extends Policy {
     public function lock($from, $to, $time)
@@ -20,7 +22,7 @@ class DoorPolicyDenyAll extends Policy {
     }
 }
 
-class MachineTest extends PHPUnit_Framework_TestCase {
+class MachineTest extends TestCase {
 
     protected $machine;
 
@@ -109,10 +111,11 @@ class MachineTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @test
-     * @expectedException \OffbeatEngineer\State\MachineException
      */
     public function it_complains_about_invalid_transitions()
     {
+        $this->expectException(\OffbeatEngineer\State\MachineException::class);
+
         $machine = $this->makeMachine();
 
         $machine->publish();
@@ -161,10 +164,11 @@ class MachineTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @test
-     * @expectedException \OffbeatEngineer\State\MachineException
      */
     public function it_complains_when_an_uninitialized_machine_is_used()
     {
+        $this->expectException(\OffbeatEngineer\State\MachineException::class);
+
         $machine = new Machine;
 
         $machine->process('dummy');
@@ -175,7 +179,9 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     {
         $machine = $this->makeMachine();
 
-        $callback = $this->getMock('stdClass', array('handle'));
+        $callback = $this->getMockBuilder(stdClass::class)
+                         ->addMethods(array('handle'))
+                         ->getMock();
         $callback->expects($this->once())
             ->method('handle')
             ->with('draft', 'pending', 'zhiyan', 'admin');
@@ -190,7 +196,9 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     {
         $machine = $this->makeMachine();
 
-        $callback = $this->getMock('stdClass', array('handle'));
+        $callback = $this->getMockBuilder(stdClass::class)
+                         ->addMethods(array('handle'))
+                         ->getMock();
         $callback->expects($this->exactly(0))
             ->method('handle')
             ->with('draft', 'pending');
@@ -206,7 +214,9 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     {
         $machine = $this->makeMachine();
 
-        $callback = $this->getMock('stdClass', array('handle'));
+        $callback = $this->getMockBuilder(stdClass::class)
+                         ->addMethods(array('handle'))
+                         ->getMock();
         $callback->expects($this->exactly(2))
             ->method('handle');
 
@@ -217,7 +227,9 @@ class MachineTest extends PHPUnit_Framework_TestCase {
 
         $machine->off([$callback, 'handle']);
 
-        $callback = $this->getMock('stdClass', array('handle'));
+        $callback = $this->getMockBuilder(stdClass::class)
+                         ->addMethods(array('handle'))
+                         ->getMock();
         $callback->expects($this->exactly(1))
             ->method('handle')
             ->with('archive', 'published', 'archived', ['zhiyan']);
@@ -260,7 +272,9 @@ class MachineTest extends PHPUnit_Framework_TestCase {
     {
         $machine = $this->makeMachine();
 
-        $walker = $this->getMock('stdClass', array('pend', 'publish', 'archive'));
+        $walker = $this->getMockBuilder(stdClass::class)
+                         ->addMethods(array('pend', 'publish', 'archive'))
+                         ->getMock();
 
         $walker->expects($this->once())
             ->method('pend')
@@ -280,7 +294,9 @@ class MachineTest extends PHPUnit_Framework_TestCase {
 
         $machine->detach($walker);
 
-        $genericWalker = $this->getMock('stdClass', array('_catchall_'));
+        $genericWalker = $this->getMockBuilder(stdClass::class)
+                         ->addMethods(array('_catchall_'))
+                         ->getMock();
         $genericWalker->expects($this->exactly(1))
             ->method('_catchall_')->with('pend', 'draft', 'pending', ['John']);
 

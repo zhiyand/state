@@ -1,2 +1,3 @@
 vendor/
 docs/.jekyll-cache/
+.phpunit.result.cache

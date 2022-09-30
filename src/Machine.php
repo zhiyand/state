@@ -366,6 +366,9 @@ class Machine {
         $this->states = array_filter(array_map('trim', $states));
 
         foreach ($lines as $line) {
+            if ($line == "") {
+                continue;
+            }
             list($transition, $ends) = explode(':', trim($line, " -"));
             list($from, $to) = array_map('trim', explode('>', $ends));
 
