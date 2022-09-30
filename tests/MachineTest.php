@@ -1,7 +1,7 @@
 <?php
 
-use Zhibaihe\State\Machine;
-use Zhibaihe\State\Policy;
+use OffbeatEngineer\State\Machine;
+use OffbeatEngineer\State\Policy;
 
 class DoorPolicy extends Policy {
     public function lock($from, $to, $time)
@@ -109,7 +109,7 @@ class MachineTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @test
-     * @expectedException \Zhibaihe\State\MachineException
+     * @expectedException \OffbeatEngineer\State\MachineException
      */
     public function it_complains_about_invalid_transitions()
     {
@@ -161,7 +161,7 @@ class MachineTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @test
-     * @expectedException \Zhibaihe\State\MachineException
+     * @expectedException \OffbeatEngineer\State\MachineException
      */
     public function it_complains_when_an_uninitialized_machine_is_used()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Zhibaihe\State;
+namespace OffbeatEngineer\State;
 
 class Machine {
 
@@ -130,7 +130,7 @@ class Machine {
 
     /**
      * Process a transition.
-     * `\Zhibaihe\State\MachineException` is thrown when:
+     * `\OffbeatEngineer\State\MachineException` is thrown when:
      * 1. the machine is not initialized;
      * 2. no transition is defined at current state;
      * 3. the transition is illegal at current state.
@@ -139,7 +139,7 @@ class Machine {
      * @param  array  $arguments   The arguments for the transition
      * @return void
      *
-     * @throws \Zhibaihe\State\MachineException
+     * @throws \OffbeatEngineer\State\MachineException
      */
     public function process($transition, $arguments = [])
     {

@@ -16,7 +16,7 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "Zhibaihe\\State\\": "src/"
+            "OffbeatEngineer\\State\\": "src/"
         }
     }
 }

@@ -27,7 +27,7 @@ like the following:
 
 {% highlight php %}
 <?php
-use Zhibaihe\State\Machine;
+use OffbeatEngineer\State\Machine;
 
 ...
 

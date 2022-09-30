@@ -7,13 +7,13 @@ permalink: /policies/
 Sometimes you may want to do some checking before a transition and allow or deny
 that transition conditionally. You can do exactly this with `State` using poilcies.
 
-To create a policy for your machine, simply extend the Zhibaihe\State\Policy class
+To create a policy for your machine, simply extend the OffbeatEngineer\State\Policy class
 and pass an instance of your policy class to the `Machine` constructor as the third
 argument.
 
 {% highlight php %}
 <?php
-use Zhibaihe\State\Policy;
+use OffbeatEngineer\State\Policy;
 
 class OrderPolicy extends Policy {
 }
