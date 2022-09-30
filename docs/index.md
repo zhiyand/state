@@ -16,7 +16,7 @@ title: State - State machines made simple.
 Pull `State` in from Composer:
 
 {% highlight php %}
-composer require offbeatengineer/state ^1.3
+composer require offbeatengineer/state "^v1.3"
 {% endhighlight %}
 
 ## Create a state machine
