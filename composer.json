@@ -1,5 +1,5 @@
 {
-    "name": "zhibaihe/state",
+    "name": "offbeatengineer/state",
     "description": "A finite state machine for PHP.",
     "type": "library",
     "require-dev": {
@@ -9,7 +9,7 @@
     "authors": [
         {
             "name": "DUAN Zhiyan",
-            "email": "zhiyan@zhibaihe.com"
+            "email": "zhiyan@offbeatengineer.com"
         }
     ],
     "minimum-stability": "stable",
