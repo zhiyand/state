@@ -1,0 +1,30 @@
+.logo{
+    text-align:center;
+
+    border-bottom: 1px dashed #ccc;
+    padding-bottom:30px;
+
+    & > a {
+        display:inline-block;
+        width: 32px;
+        height:32px;
+        padding:14px 16px 18px;
+        border-radius:100px;
+        border:1px dashed darken($main_background, 30%);
+    }
+
+    & > a > svg {
+        width:32px;
+    }
+}
+
+.navigation{
+    & > ul {
+        list-style: none;
+        text-align: center;
+    }
+    & > ul > li {
+        display:inline-block;
+        padding: 15px 20px;
+    }
+}

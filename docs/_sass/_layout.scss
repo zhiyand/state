@@ -1,0 +1,80 @@
+.wrapper{
+    max-width:680px;
+    margin:30px auto;
+    padding: 0 15px;
+}
+
+footer{
+    text-align:center;
+    color: #999;
+    padding: 30px 0;
+}
+
+/* Generic box styles */
+.box{
+    background:#fff;
+    overflow:hidden;
+    width:100%;
+
+    @media (min-width:421px){
+        border-radius:4px;
+    }
+
+    &.highlight{
+        border-top:5px solid $brand_green;
+    }
+}
+
+.box > .box-heading{
+    padding:15px 30px;
+    border-bottom:1px solid $main_background;
+
+    h2{
+        font-size:1.125rem;
+        margin:0;
+    }
+}
+.box > .box-content{
+    position:relative;
+    padding:30px;
+
+    &.grey  { background-color: lighten($main_background, 7%); }
+    &.upper { border-radius: 4px 4px 0 0;
+        &.split { border-bottom: 1px solid $main_background; }
+    }
+    &.lower { border-radius: 0 0 4px 4px;
+        &.split { border-top: 1px solid $main_background; }
+    }
+    &.middle{
+        &.split { border-top: 1px solid $main_background;
+            border-bottom: 1px solid $main_background; }
+        &.split-top { border-top: 1px solid $main_background; }
+        &.split-bottom { border-bottom: 1px solid $main_background; }
+    }
+
+    &.compact{
+        padding:30px 0;
+    }
+}
+
+
+.box > .box-footer,
+.box > .box-content{
+    & > p{ margin-bottom:1rem; }
+
+    & > *:last-child{ margin-bottom: 0 }
+    & > *:first-child{ margin-top: 0 }
+}
+
+.box > .box-footer{
+    padding:30px;
+    border-top:1px solid $main_background;
+}
+
+.box + .box{
+    margin-top:30px;
+
+    @include media-query($on-palm){
+        margin-top:1px;
+    }
+}
